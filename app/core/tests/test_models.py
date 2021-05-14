@@ -6,16 +6,16 @@ from django.contrib.auth import get_user_model
 from core import models
 
 
-def sample_user(email='test@londonappdev.com', password='testpass'):
-    """Create a sample user"""
+def sample_user(email='test@tslabs.com', password='testpass'):
+    """Cria um usuario simples"""
     return get_user_model().objects.create_user(email, password)
 
 
 class ModelTests(TestCase):
 
     def test_create_user_with_email_successful(self):
-        """Test creating a new user with an email is successful"""
-        email = 'test@londonappdev.com'
+        """Teste sucesso na criacao d eum usuario com email"""
+        email = 'test@tslabs.com'
         password = 'Testpass123'
         user = get_user_model().objects.create_user(
             email=email,
@@ -26,21 +26,21 @@ class ModelTests(TestCase):
         self.assertTrue(user.check_password(password))
 
     def test_new_user_email_normalized(self):
-        """Test the email for a new user is normalized"""
-        email = 'test@LONDONAPPDEV.COM'
+        """Teste se o e-mail foi convertido para minusculas"""
+        email = 'test@TSLABS.COM'
         user = get_user_model().objects.create_user(email, 'test123')
 
         self.assertEqual(user.email, email.lower())
 
     def test_new_user_invalid_email(self):
-        """Test creating user with no email raises error"""
+        """Teste se eh gerado erro para novo usuario"""
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(None, 'test123')
 
     def test_create_new_superuser(self):
-        """Test creating a new superuser"""
+        """Teste de criacao de um novo superuser"""
         user = get_user_model().objects.create_superuser(
-            'test@londonappdev.com',
+            'test@tslabs.com',
             'test123'
         )
 
@@ -51,37 +51,37 @@ class ModelTests(TestCase):
         """Test the tag string representation"""
         tag = models.Tag.objects.create(
             user=sample_user(),
-            name='Vegan'
+            name='Docker'
         )
 
         self.assertEqual(str(tag), tag.name)
 
-    def test_ingredient_str(self):
-        """Test the ingredient string respresentation"""
-        ingredient = models.Ingredient.objects.create(
+    def test_atributos_str(self):
+        """Test the attribute string respresentation"""
+        atributo = models.Atributo.objects.create(
             user=sample_user(),
-            name='Cucumber'
+            name='Linguagens programacao'
         )
 
-        self.assertEqual(str(ingredient), ingredient.name)
+        self.assertEqual(str(atributo), atributo.name)
 
-    def test_recipe_str(self):
-        """Test the recipe string representation"""
-        recipe = models.Recipe.objects.create(
+    def test_montagem_str(self):
+        """Testa a reperesentacao da string de montagem"""
+        montagem = models.Montagem.objects.create(
             user=sample_user(),
-            title='Steak and mushroom sauce',
-            time_minutes=5,
-            price=5.00
+            titulo='Desenvolvendo uma solucao com Docker',
+            tempo_execucao=5,
+            preco=5.00
         )
 
-        self.assertEqual(str(recipe), recipe.title)
+        self.assertEqual(str(montagem), montagem.titulo)
 
     @patch('uuid.uuid4')
-    def test_recipe_file_name_uuid(self, mock_uuid):
-        """Test that image is saved in the correct location"""
+    def test_montagem_file_name_uuid(self, mock_uuid):
+        """Teste se a imagem eh salva na localizacao correta"""
         uuid = 'test-uuid'
         mock_uuid.return_value = uuid
-        file_path = models.recipe_image_file_path(None, 'myimage.jpg')
+        file_path = models.montagem_image_file_path(None, 'myimage.jpg')
 
-        exp_path = f'uploads/recipe/{uuid}.jpg'
+        exp_path = f'uploads/montagem/{uuid}.jpg'
         self.assertEqual(file_path, exp_path)

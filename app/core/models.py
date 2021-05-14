@@ -6,20 +6,20 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
 from django.conf import settings
 
 
-def recipe_image_file_path(instance, filename):
-    """Generate file path for new recipe image"""
+def montagem_image_file_path(instance, filename):
+    """Gera o caminho para uma nova imagem da linha de montagem"""
     ext = filename.split('.')[-1]
     filename = f'{uuid.uuid4()}.{ext}'
 
-    return os.path.join('uploads/recipe/', filename)
+    return os.path.join('uploads/montagem/', filename)
 
 
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
-        """Creates and saves a new user"""
+        """Cria e salva um novo usuario"""
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError('Usuarios devem ter um endereco de email')
         user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -27,7 +27,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password):
-        """Creates and saves a new super user"""
+        """Cria e salva um novo super user"""
         user = self.create_user(email, password)
         user.is_staff = True
         user.is_superuser = True
@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """Custom user model that suppors using email instead of username"""
+    """Modelo de usuario personalizado"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -49,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Tag(models.Model):
-    """Tag to be used for a recipe"""
+    """Tag a ser usana na linha de montagem"""
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -60,8 +60,8 @@ class Tag(models.Model):
         return self.name
 
 
-class Ingredient(models.Model):
-    """Ingredient to be used in a recipe"""
+class Atributo(models.Model):
+    """Atributo a ser usana na linha de montagem"""
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -72,19 +72,19 @@ class Ingredient(models.Model):
         return self.name
 
 
-class Recipe(models.Model):
-    """Recipe object"""
+class Montagem(models.Model):
+    """Objeto linha de Montagem"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
-    title = models.CharField(max_length=255)
-    time_minutes = models.IntegerField()
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    titulo = models.CharField(max_length=255)
+    tempo_execucao = models.IntegerField()
+    preco = models.DecimalField(max_digits=5, decimal_places=2)
     link = models.CharField(max_length=255, blank=True)
-    ingredients = models.ManyToManyField('Ingredient')
+    atributos = models.ManyToManyField('Atributo')
     tags = models.ManyToManyField('Tag')
-    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
+    image = models.ImageField(null=True, upload_to=montagem_image_file_path)
 
     def __str__(self):
-        return self.title
+        return self.titulo
