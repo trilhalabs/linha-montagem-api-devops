@@ -1,0 +1,74 @@
+stages:
+  - Test and Lint
+  - Build and Push
+  - Homolog Plan
+  - Homolog Apply
+  - Prod Plan
+  - Prod Apply
+  - Destroy
+
+Test and Lint:
+  stage: Test and Lint
+  script:
+    - echo "====Testa app e verifica formatacoes===="
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(master|production)$/ || $CI_COMMIT_BRANCH =~ /^(master|production)$/'
+
+Validate Terraform:
+  stage: Test and Lint
+  script:
+    - echo "====Faz validacoes do Terraform===="
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(master|production)$/ || $CI_COMMIT_BRANCH =~ /^(master|production)$/'
+
+Build and Push:
+  stage: Build and Push
+  script:
+    - echo "====Constroi e entrega imagem docker===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
+
+Homolog Plan:
+  stage: Homolog Plan
+  script:
+    - echo "====Planeja infra (Terraform) para ambiente de Homologacao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
+
+Homolog Apply:
+  stage: Homolog Apply
+  script:
+    - echo "====xecuta infra (Terraform) para ambiente de Homologacao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
+
+Prod Plan:
+  stage: Prod Plan
+  script:
+    - echo "====Planeja infra (Terraform) para ambiente de Producao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+
+Prod Apply:
+  stage: Prod Apply
+  script:
+    - echo "====Executa infra (Terraform) para ambiente de Producao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+      when: manual
+
+Staging Destroy:
+  stage: Destroy
+  script:
+    - echo "====Destroi infra (Terraform) de Homologacao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
+      when: manual
+
+Production Destroy:
+  stage: Destroy
+  script:
+    - echo "====Destroi infra (Terraform) de Producao===="
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+      when: manual
