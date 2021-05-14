@@ -5,42 +5,42 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Tag, Recipe
+from core.models import Tag, Montagem
 
-from recipe.serializers import TagSerializer
+from montagem.serializers import TagSerializer
 
 
-TAGS_URL = reverse('recipe:tag-list')
+TAGS_URL = reverse('montagem:tag-list')
 
 
 class PublicTagsApiTests(TestCase):
-    """Test thje publicly available tags API"""
+    """Teste a API de tags disponiveis publicamente"""
 
     def setUp(self):
         self.client = APIClient()
 
     def test_login_required(self):
-        """Test that login is required for retrieving tags"""
+        """Teste se o login eh necessario para recuperar tags"""
         res = self.client.get(TAGS_URL)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PrivateTagsApiTests(TestCase):
-    """Test the authorized user tags API"""
+    """Teste a API de tags de usuario autorizado"""
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            'test@londonappdev.com',
+            'test@tslabs.com',
             'password123'
         )
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
     def test_retrieve_tags(self):
-        """Test retrieving tags"""
-        Tag.objects.create(user=self.user, name='Vegan')
-        Tag.objects.create(user=self.user, name='Dessert')
+        """Teste de recuperacao de tags"""
+        Tag.objects.create(user=self.user, name='Docker')
+        Tag.objects.create(user=self.user, name='Container')
 
         res = self.client.get(TAGS_URL)
 
@@ -50,13 +50,13 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_tags_limited_to_user(self):
-        """Test that tags returned are for the authenticated user"""
+        """Teste se as tags retornadas sao para o usuario autenticado"""
         user2 = get_user_model().objects.create_user(
-            'other@londonappdev.com',
+            'other@tslabs.com',
             'testpass'
         )
-        Tag.objects.create(user=user2, name='Fruity')
-        tag = Tag.objects.create(user=self.user, name='Comfort Food')
+        Tag.objects.create(user=user2, name='Programacao')
+        tag = Tag.objects.create(user=self.user, name='Pipelina')
 
         res = self.client.get(TAGS_URL)
 
@@ -65,7 +65,7 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(res.data[0]['name'], tag.name)
 
     def test_create_tag_successful(self):
-        """Test creating a new tag"""
+        """Teste de criacao de uma nova tag"""
         payload = {'name': 'Test tag'}
         self.client.post(TAGS_URL, payload)
 
@@ -76,23 +76,23 @@ class PrivateTagsApiTests(TestCase):
         self.assertTrue(exists)
 
     def test_create_tag_invalid(self):
-        """Test creating a new tag with invalid payload"""
+        """Teste a criacao de uma nova tag com carga util invalida"""
         payload = {'name': ''}
         res = self.client.post(TAGS_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_retrieve_tags_assigned_to_recipes(self):
-        """Test filtering tags by those assigned to recipes"""
-        tag1 = Tag.objects.create(user=self.user, name='Breakfast')
-        tag2 = Tag.objects.create(user=self.user, name='Lunch')
-        recipe = Recipe.objects.create(
-            title='Coriander eggs on toast',
-            time_minutes=10,
-            price=5.00,
+    def test_retrieve_tags_assigned_to_montagens(self):
+        """Teste as tags filtradas"""
+        tag1 = Tag.objects.create(user=self.user, name='Docker')
+        tag2 = Tag.objects.create(user=self.user, name='CICD')
+        montagem = Montagem.objects.create(
+            titulo='Integracao continua',
+            tempo_execucao=10,
+            preco=5.00,
             user=self.user
         )
-        recipe.tags.add(tag1)
+        montagem.tags.add(tag1)
 
         res = self.client.get(TAGS_URL, {'assigned_only': 1})
 
@@ -102,23 +102,23 @@ class PrivateTagsApiTests(TestCase):
         self.assertNotIn(serializer2.data, res.data)
 
     def test_retrieve_tags_assigned_unique(self):
-        """Test filtering tags by assigned returns unique items"""
-        tag = Tag.objects.create(user=self.user, name='Breakfast')
-        Tag.objects.create(user=self.user, name='Lunch')
-        recipe1 = Recipe.objects.create(
-            title='Pancakes',
-            time_minutes=5,
-            price=3.00,
+        """Teste as tags filtradas"""
+        tag = Tag.objects.create(user=self.user, name='CICD')
+        Tag.objects.create(user=self.user, name='Pipeline')
+        montagem1 = Montagem.objects.create(
+            titulo='Deploy continuo',
+            tempo_execucao=5,
+            preco=3.00,
             user=self.user
         )
-        recipe1.tags.add(tag)
-        recipe2 = Recipe.objects.create(
-            title='Porridge',
-            time_minutes=3,
-            price=2.00,
+        montagem1.tags.add(tag)
+        montagem2 = Montagem.objects.create(
+            titulo='Devops e integracao continua',
+            tempo_execucao=3,
+            preco=2.00,
             user=self.user
         )
-        recipe2.tags.add(tag)
+        montagem2.tags.add(tag)
 
         res = self.client.get(TAGS_URL, {'assigned_only': 1})
 
