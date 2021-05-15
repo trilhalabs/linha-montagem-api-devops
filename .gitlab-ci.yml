@@ -1,3 +1,9 @@
+image:
+  name: hashicorp/terraform:0.12.21
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
 stages:
   - Test and Lint
   - Build and Push
@@ -8,6 +14,9 @@ stages:
   - Destroy
 
 Test and Lint:
+  image: docker:19.03.5
+  services:
+    - docker:19.03.5-dind
   stage: Test and Lint
   script:
     - echo "====Testa app e verifica formatacoes===="
@@ -28,6 +37,9 @@ Validate Terraform:
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(master|production)$/ || $CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
 Build and Push:
+  image: docker:19.03.5
+  services:
+    - docker:19.03.5-dind
   stage: Build and Push
   script:
     - echo "====Constroi e entrega imagem docker===="
