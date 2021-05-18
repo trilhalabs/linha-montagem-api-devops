@@ -7,10 +7,10 @@ image:
 stages:
   - Test and Lint
   - Build and Push
-  - Homolog Plan
-  - Homolog Apply
-  - Prod Plan
-  - Prod Apply
+  - Staging Plan
+  - Staging Apply
+  - Production Plan
+  - Production Apply
   - Destroy
 
 Test and Lint:
@@ -53,29 +53,29 @@ Build and Push:
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
-Homolog Plan:
-  stage: Homolog Plan
+Staging Plan:
+  stage: Staging Plan
   script:
     - echo "====Planeja infra (Terraform) para ambiente de Homologacao===="
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
-Homolog Apply:
-  stage: Homolog Apply
+Staging Apply:
+  stage: Staging Apply
   script:
     - echo "====xecuta infra (Terraform) para ambiente de Homologacao===="
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
-Prod Plan:
-  stage: Prod Plan
+Production Plan:
+  stage: Production Plan
   script:
     - echo "====Planeja infra (Terraform) para ambiente de Producao===="
   rules:
     - if: '$CI_COMMIT_BRANCH == "production"'
 
-Prod Apply:
-  stage: Prod Apply
+Production Apply:
+  stage: Production Apply
   script:
     - echo "====Executa infra (Terraform) para ambiente de Producao===="
   rules:

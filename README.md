@@ -56,7 +56,7 @@ git push gitlab master
 - Gere e execute o ambiente virtual
 
 ```shell
-#dentro do diretorio da aplicacao recipe-app-api
+#dentro do diretorio da aplicacao linha-montagem-app-api
 python -m venv env
 ls -la
 pwd
@@ -67,7 +67,7 @@ source <caminho-do-projeto>/env/Scripts/activate
 - Instale o Django e o Django Framework
 
 ```shell
-#dentro do diretorio da aplicacao recipe-app-api
+#dentro do diretorio da aplicacao linha-montagem-app-api
 cd env/Scripts/
 python.exe -m pip install --upgrade pip #garantir versão mais atualizada do Pip
 cd ../env/
@@ -90,18 +90,21 @@ docker-compose build
 
 ```shell
 docker-compose run app sh -c "python manage.py makemigrations core"
-#em caso de erro,executar
+#em caso de erro, executar
 #docker-compose run app sh -c "python manage.py migrate"
+
 docker-compose run app sh -c "python manage.py test && flake8"
 docker-compose run app sh -c "python manage.py createsuperuser"
 # Ex: email: seu-mail@gamil.com
 # Ex: password: senhasecreta
+
 ```
 
 - Testando a aplicação
 
 ```shell
-docker-compose up
+docker-compose up --build
+
 ```
 
 - No container
@@ -146,3 +149,26 @@ select * from core_user;
     - lista as tags que aparecem em uma linha de montagem
   - <http://localhost:8000/api/montagem/tags/?assigned_only=0>
     - lista todos as tags em linha de montagem
+
+## Terraform local
+
+- Garantir sessão do AWS-Vault (ver tópico acima)
+
+  ```shell
+  aws-vault exec <seu-user-iam-com-token> --duration=2h  
+
+  cd linha-montagem-app-api #garantir diretorio da aplicação
+
+  docker-compose -f deploy/docker-compose.yml run --rm terraform init #inicializa arquivos .tf
+
+  #lista as workspaces existentes
+  docker-compose -f deploy/docker-compose.yml run --rm terraform workspace list
+  #cria a workspace dev
+  docker-compose -f deploy/docker-compose.yml run --rm terraform workspace new dev
+
+  docker-compose -f deploy/docker-compose.yml run --rm terraform fmt #garante formatação dos arquivos .tf
+  docker-compose -f deploy/docker-compose.yml run --rm terraform validate #valida arquivos .tf
+  docker-compose -f deploy/docker-compose.yml run --rm terraform plan #planeja a infra-estrutura
+  docker-compose -f deploy/docker-compose.yml run --rm terraform apply #execupal a infra-estrutura
+  docker-compose -f deploy/docker-compose.yml run --rm terraform destroy #remove a infraestrutura
+  ```
