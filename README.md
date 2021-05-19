@@ -104,6 +104,7 @@ docker-compose run app sh -c "python manage.py createsuperuser"
 
 ```shell
 docker-compose up --build
+docker-compose -f docker-compose-proxy.yml up
 
 ```
 

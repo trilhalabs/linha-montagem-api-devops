@@ -3,9 +3,6 @@ LABEL maintainer="Trilhando Saber Labs"
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH="/scripts:${PATH}"
-ENV LISTEN_PORT=8000
-ENV APP_HOST=app
-ENV APP_PORT=9000
 
 RUN pip install --upgrade pip
 
