@@ -28,7 +28,7 @@ variable "ecr_image_api" {
 }
 
 variable "ecr_image_proxy" {
-  description = "ECR Image for proxy-lm"
+  description = "ECR Image for proxy_lm"
   default     = "017993950221.dkr.ecr.us-east-1.amazonaws.com/linha-montagem-app-api-proxy:latest"
 }
 

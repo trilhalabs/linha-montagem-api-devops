@@ -37,7 +37,7 @@
         ]
     },
     {
-        "name": "proxy-lm",
+        "name": "proxy_lm",
         "image": "${proxy_image}",
         "essential": true,
         "portMappings": [
