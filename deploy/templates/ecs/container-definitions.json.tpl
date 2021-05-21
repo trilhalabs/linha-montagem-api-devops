@@ -24,14 +24,46 @@
         },
         "portMappings": [
             {
-                "containerPort": 8000,
-                "hostPort": 8000
+                "containerPort": 9000,
+                "hostPort": 9000
             }
         ],
         "mountPoints": [
             {
                 "readOnly": false,
                 "containerPath": "/vol/web",
+                "sourceVolume": "static"
+            }
+        ]
+    },
+    {
+        "name": "proxy_lm",
+        "image": "${proxy_image}",
+        "essential": true,
+        "portMappings": [
+            {
+                "containerPort": 8000,
+                "hostPort": 8000
+            }
+        ],
+        "memoryReservation": 256,
+        "environment": [
+            {"name": "APP_HOST", "value": "127.0.0.1"},
+            {"name": "APP_PORT", "value": "9000"},
+            {"name": "LISTEN_PORT", "value": "8000"}
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "${log_group_name}",
+                "awslogs-region": "${log_group_region}",
+                "awslogs-stream-prefix": "proxy"
+            }
+        },
+        "mountPoints": [
+            {
+                "readOnly": true,
+                "containerPath": "/vol/static",
                 "sourceVolume": "static"
             }
         ]
