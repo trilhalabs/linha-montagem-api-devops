@@ -57,13 +57,23 @@ Staging Plan:
   stage: Staging Plan
   script:
     - echo "====Planeja infra (Terraform) para ambiente de Homologacao===="
+    - cd deploy/
+    - export TF_VAR_ecr_image_api=$ECR_REPO:$CI_COMMIT_SHORT_SHA
+    - terraform init
+    - terraform workspace select staging || terraform workspace new staging
+    - terraform plan
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
 Staging Apply:
   stage: Staging Apply
   script:
-    - echo "====xecuta infra (Terraform) para ambiente de Homologacao===="
+    - echo "====Executa infra (Terraform) para ambiente de Homologacao===="
+    - cd deploy/
+    - export TF_VAR_ecr_image_api=$ECR_REPO:$CI_COMMIT_SHORT_SHA
+    - terraform init
+    - terraform workspace select staging
+    - terraform apply -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
 
@@ -71,6 +81,11 @@ Production Plan:
   stage: Production Plan
   script:
     - echo "====Planeja infra (Terraform) para ambiente de Producao===="
+    - cd deploy/
+    - export TF_VAR_ecr_image_api=$ECR_REPO:$CI_COMMIT_SHORT_SHA
+    - terraform init
+    - terraform workspace select production || terraform workspace new production
+    - terraform plan
   rules:
     - if: '$CI_COMMIT_BRANCH == "production"'
 
@@ -78,6 +93,11 @@ Production Apply:
   stage: Production Apply
   script:
     - echo "====Executa infra (Terraform) para ambiente de Producao===="
+    - cd deploy/
+    - export TF_VAR_ecr_image_api=$ECR_REPO:$CI_COMMIT_SHORT_SHA
+    - terraform init
+    - terraform workspace select production
+    - terraform apply -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH == "production"'
       when: manual
@@ -86,6 +106,10 @@ Staging Destroy:
   stage: Destroy
   script:
     - echo "====Destroi infra (Terraform) de Homologacao===="
+    - cd deploy/
+    - terraform init
+    - terraform workspace select staging
+    - terraform destroy -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^(master|production)$/'
       when: manual
@@ -94,6 +118,10 @@ Production Destroy:
   stage: Destroy
   script:
     - echo "====Destroi infra (Terraform) de Producao===="
+    - cd deploy/
+    - terraform init
+    - terraform workspace select production
+    - terraform destroy -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH == "production"'
       when: manual
